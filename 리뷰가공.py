@@ -3,7 +3,7 @@ from datetime import datetime
 import pandas as pd
 
 # 원시 리뷰 데이터를 저장한 JSON 파일 경로 및 파일명
-json_filename = 'raw_reviews.json'
+json_filename = '7279902664.json'
 
 # JSON 파일 읽어오기
 try:
@@ -45,29 +45,26 @@ for review in reviews: # reviews 리스트를 순회
     review_rating = review.get('rating', '')
     admin_comment = '' # 관리자 댓글 필드는 JSON에 없음
 
-    # 구매옵션 및 고객정보 (reviewSurveyAnswers에서 추출)
+    # 구매옵션 추출 (itemName 필드 사용)
+    item_name = review.get('itemName', '')
+    item_name_parts = item_name.split(',', 1) # 첫 번째 쉼표를 기준으로 분리
+    purchase_option_name = item_name_parts[0].strip() if item_name_parts else ''
+    purchase_option_value = item_name_parts[1].strip() if len(item_name_parts) > 1 else ''
+
+    # 고객정보 (reviewSurveyAnswers에서 추출)
     survey_answers = review.get('reviewSurveyAnswers', [])
     
-    # 구매옵션 및 고객정보를 위한 딕셔너리 초기화
-    purchase_options = {}
+    # 고객정보를 위한 딕셔너리 초기화
     customer_info = {}
 
     if isinstance(survey_answers, list):
-        for i, survey in enumerate(survey_answers):
-            # 첫 번째 항목은 구매옵션, 두 번째 항목부터는 고객정보로 간주 (이전 논리 유지)
-            if i == 0:
-                purchase_options[f'구매옵션_옵션명1'] = survey.get('question', '')
-                purchase_options[f'구매옵션_옵션값1'] = survey.get('answer', '')
-            elif i > 0 and i < 6: # 최대 5개의 구매옵션/고객정보 항목 처리
-                 # 이미지를 보니 구매옵션이 여러개 올 수 있는 구조 같아 구매옵션2~5, 고객정보1~5로 분리합니다.
-                 # 실제 데이터 구조에 따라 이 부분은 조정이 필요할 수 있습니다.
-                 # 현재는 surveyAnswers의 첫번째가 구매옵션, 나머지가 고객정보로 간주합니다.
-                customer_info_index = i # 고객정보는 인덱스 1부터 시작
-                customer_info[f'고객정보_정보명{customer_info_index}'] = survey.get('question', '')
-                customer_info[f'고객정보_답변값{customer_info_index}'] = survey.get('answer', '')
-            # 이미지를 보니 구매옵션도 여러개 올 수 있도록 되어 있어서, surveyAnswers의 question 내용을 보고 판단하는 것이 더 정확할 수 있습니다.
-            # 하지만 현재 데이터와 이전 요청을 바탕으로 첫번째 surveyAnswers는 구매옵션, 나머지는 고객정보로 처리합니다.
-            # 만약 필요하다면 이 로직을 survey['question'] 내용을 보고 구매옵션과 고객정보를 구분하도록 변경할 수 있습니다.
+        # reviewSurveyAnswers의 처음 5개 항목을 고객 정보로 추출
+        for i in range(min(len(survey_answers), 5)): # survey_answers 길이 또는 5 중 작은 값까지 반복
+            survey = survey_answers[i]
+            customer_info_index = i + 1 # 고객정보는 인덱스 1부터 시작
+            customer_info[f'고객정보_정보명{customer_info_index}'] = survey.get('question', '')
+            customer_info[f'고객정보_답변값{customer_info_index}'] = survey.get('answer', '')
+
 
     # 이미지 URL 추출 및 개별 칼럼에 할당 (최대 10개)
     image_urls = [attachment.get('imgSrcOrigin', '') for attachment in review.get('attachments', []) if attachment.get('attachmentType') == 'IMAGE']
@@ -93,7 +90,8 @@ for review in reviews: # reviews 리스트를 순회
         '리뷰_내용': review_content,
         '리뷰_별점': review_rating,
         '관리자_댓글': admin_comment,
-        **purchase_options, # 구매옵션 딕셔너리 언팩
+        '구매옵션_옵션명1': purchase_option_name, # itemName에서 추출한 구매옵션명
+        '구매옵션_옵션값1': purchase_option_value, # itemName에서 추출한 구매옵션값
         **customer_info, # 고객정보 딕셔너리 언팩
         **image_data, # 이미지 데이터 딕셔너리 언팩
         **video_data # 동영상 데이터 딕셔너리 언팩
@@ -114,6 +112,6 @@ except ImportError:
     print("tabulate 라이브러리가 설치되지 않아 테이블 형태로 출력할 수 없습니다. 'pip install tabulate' 명령어로 설치해주세요.")
 
 # Excel 파일로 저장
-excel_filename = 'reviews_processed.xlsx' # 파일명 변경하여 기존 파일과 구분
+excel_filename = f'{json_filename}.xlsx' # 파일명 변경하여 기존 파일과 구분
 df.to_excel(excel_filename, index=False)
 print(f"\n데이터가 '{excel_filename}' 파일로 저장되었습니다.")
