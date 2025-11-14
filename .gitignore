@@ -1,0 +1,7 @@
+*.zip
+*.xlsx
+/videos
+*.png
+*.jpg
+old/*.jpg
+*.jpeg

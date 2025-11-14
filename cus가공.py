@@ -68,33 +68,19 @@ for review in reviews: # reviews 리스트를 순회
 
     # 이미지 URL 추출 및 개별 칼럼에 할당 (최대 10개)
     image_urls = [attachment.get('imgSrcOrigin', '') for attachment in review.get('attachments', []) if attachment.get('attachmentType') == 'IMAGE']
-    image_data = {}
-    for i in range(10):
-        image_data[f'URL_이미지 {i+1}'] = image_urls[i] if i < len(image_urls) else ''
-
     # 동영상 URL 추출 및 개별 칼럼에 할당 (최대 10개)
     video_urls = [video_attachment.get('videoUrl', '') for video_attachment in review.get('videoAttachments', []) if video_attachment.get('attachmentType') == 'VIDEO']
-    video_data = {}
-    for i in range(10):
-        video_data[f'URL_동영상 {i+1}'] = video_urls[i] if i < len(video_urls) else ''
 
+    # 사진 또는 동영상 포함 여부 확인
+    has_media = 'Y' if image_urls or video_urls else 'N'
 
     # 추출한 데이터를 딕셔너리로 저장
     review_data = {
-        '리뷰_id': review_id,
-        '상품_id': product_id,
         '리뷰 작성일자': review_date,
-        '리뷰 작성 시간': review_time,
-        '리뷰 작성자명': reviewer_name,
-        '리뷰 제목': review_title,
-        '리뷰_내용': review_content,
-        '리뷰_별점': review_rating,
-        '관리자_댓글': admin_comment,
-        '구매옵션_옵션명1': purchase_option_name, # itemName에서 추출한 구매옵션명
-        '구매옵션_옵션값1': purchase_option_value, # itemName에서 추출한 구매옵션값
-        **customer_info, # 고객정보 딕셔너리 언팩
-        **image_data, # 이미지 데이터 딕셔너리 언팩
-        **video_data # 동영상 데이터 딕셔너리 언팩
+        '리뷰 내용': review_content,
+        '리뷰 별점': review_rating,
+        '옵션명': purchase_option_name,
+        '사진/동영상 여부': has_media # 새로 추가된 항목
     }
     data_list.append(review_data)
 

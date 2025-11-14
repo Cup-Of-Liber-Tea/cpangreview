@@ -2,52 +2,51 @@ import requests
 import json
 import time
 import random # random 라이브러리 추가
+import os # os 라이브러리 추가
+import subprocess # subprocess 라이브러리 추가
+import requests
 
 cookies = {
-    'sid': '97040aab3569456bba1330679a85a1661e1e4565',
-    'overrideAbTestGroup': '%5B%5D',
-    'x-coupang-accept-language': 'ko-KR',
     'x-coupang-target-market': 'KR',
-    'bm_ss': 'ab8e18ef4e',
-    'PCID': '17477304370704860947982',
-    'web-session-id': '57bbbcfc-d057-4ba4-9e17-3eba22cb3e2b',
-    'bm_lso': '9C7333CF362AF62E70492261B38C4332BBE4092AE8ACE34B0D36E4A46018BD38~YAAQnjggF9AHzseWAQAAORXa7APPflBK/y7o5lzZ8gfDw79GFEyz0Y2yX+991/kQJiHZafIg00cH8GZidSKibOFNzs4SJ1+O9BazzZuTUYXdXh0ifPeiUiwb0a0ZR6G9keO02uHODXJ10w/43JDP2smxZGBYGfHCXQI7Caz4RpUPqSfbmcWajo0St2kUJ60cQ+/fV71sbyeMmzKpyaG45vuuRgH3BZzz35Diw804p04WfbxuuVh5IIDrOwfWHXPTaetHaQ6H4grNvxU391bHZ5icsOz4NIVV0qkrE/hCXG08Y5sNqVbxSdbBhLFDG2OPsOv+JWjofhcpKrk/lu25g3A+aYIRKbG9gIDWCK1By3WQjNJucxp1Pa4gIxlPTJC7NmgwDpi2PdIhna2K5ZFMm55icAKf3bxcQ4jQ6FE1JTsE3/EUP28pq3FthorJz1H3oJPmXqJ1Vq1oCo4ELBFRqg==^1747730437430',
-    'MARKETID': '17477304370704860947982',
-    'baby-isWide': 'small',
-    'ak_bmsc': '798E4830F999DFAF433933566D15B094~000000000000000000000000000000~YAAQnjggFzEIzseWAQAAWhra7BujL4UK2iTT7O3s1NoLh2uprhx73jSV/2ujrnbL7r9pdS2CUQL3R6ahE3+KSx9mitMItautyPxqQ8kSMBpujT5p375EZUuT8M8e0ZcBAiwQUPbnrFBbMtODNP39kVZXqEUwoyddLyPeJtKAHxCi1a7p3uzv8C2Fxspku+s0Duf+bP0NfLFNAiWye9KHm8PJo7H67ZlmF/vuL3a4TliXapkzviguUI61hG/gD07fcsnL66vY/AsQuxb+hIld+86EjM4bdCGiAS2HClUHoru6/ZATGQ42z4u1vnk5ahfBOAdQMf2rB+v2lNCFDbpREPgf/6zWQxXyvKXxka5YMbSKbWQzRO6e2hDYkxSzu1woDGOEpuGeyh+QYoao',
-    'bm_mi': 'B4CA97C6F2E81F2BB3F8351C714A7882~YAAQrOQ1F0VX6MiWAQAANJPd7BsooWBHJ376EXT9IVbKc0I8hsFnF/d+QlKrU5zz7Rk+LSmGgNlg8tNsZI9QaUKqp4TUEpMWWP+HOH8MJ+FNV0n6gU+hhE+im1fkas82Dy2EurvkzTjy2CdkLn7AmVsPYCyVXx8qGcIquxQnUdOj8IZiiB3JTDd/sQb8ZHYRqCwHogNOHs16N6gilXX+chp2iIvjr3e9lzG42AfXI4R3OF1MRzu0zvtYtjhcl47KahCQovYlJj66F6QSSQ85QfPLTj+JbGNl8Cg8lU47LydBkDLQZu4KMAiMLufMoaET6EqE6DlyKUTOyVQ9PFbcwOmCfUc=~1',
-    'bm_s': 'YAAQrOQ1F0ZX6MiWAQAANJPd7APm7YT0e5a+wLvgBwph6Ok5J4cOhwmF7l7ebkZFWbejztDsrkWNb2K9Utcu21BKVgDpU9F1DFrmo/xXlj+ejZ0K6MpdpdjXurPnF5W41gm6ykVH0rAFcNvJhSOyTft32CMJ6rKzY5nyi6JB7nxoLhQFaz8qfd0qfgheK2GdUAomO8if71fGIhLlZ32fI18gHJwdrxPfjFW5Xird7hKx2NofNfHBzig61eQI751c5mnmON06dZ0+kwkR4AUAWFd/7V051eN2J33ngCdE/NkUxb24AORROCbai/tQ4wGMyvXlOr7fKQEbHyvudlQPzjV6X4KsZipOA8veQ2iE44YUSWnwRUsXXA0IZtAQoiXAmnSETejTB7g+19pUtiotLzov9jTgI8LmuxJAV+yuW1cAplL9BQ3EX5w+Vxw7vlY9s80ajHCrGUuFYcK6P3ww1SZFX88+rbEMLeSPyBDCTr91Kjb+QER3LkPY5wQl8TeXRlqZYlsjZJn1zTODX6pr71hxvQAaWD/35ZUujei9evAtD/t549O1pnEp+ET0lGpO2vsCcFbzvD98kK0M3MiwJQ==',
-    'bm_so': 'FBE92E38C837F67F05FB2E31180753A6BCCE27BACFB0FEEC69B04B9EEBD112D9~YAAQrOQ1F0dX6MiWAQAANJPd7AOgE/G5XGcoBSwvrwofi9x0MDV4oYYeoZJgptCvPinqgl+VJPOqI5vadOoMREAd95Eokyl7uk6Dr3+PJCjVjFZZxK3olKnqqoQ+C6Xm00xnO6j0MNFRJe+1lP4aGNkUlrysByfNpyASl0j9L50bqK9us4KzBS5tIJM4PMEDGMqmPdgnnq7XFlCutPU1FhHI4ql9e9rfuJ+bp0bbDX0oL2j0vE41Y9JFBUPfJFuT2fui4ms4Re/qYeOC21w5fDFVSdn0PmUfwIHmHnkfWtAcGLv2IOrYsiLKlut1f13vTz+1Qpsrm9enxyjA7f6G5M9uWWxIpVQpBYI6+mfk6KVgxqS2sIkzCgQnm9fhfFQH2bzHHZR7/Jb9M3/jzAZQ467NaQPNefgJE4ZK9H2S88tdAzMNLOlTXrYZCFKCo0iWhHSYUco1P2KGJTv8EaSUJg==',
-    'bm_sv': '0CD2A8886E19BCFA125073CE5686605C~YAAQrOQ1F0hX6MiWAQAANJPd7BuehIq2yhTlDbyM7SQvV+JGQzfWHl+o5G3dQCOvcGN4wgjGlZJmOLLs3w+2HGHqA9HpWdopFI9eQzkl86GQhu/ZqOo2jJ6y1Ju3CkjlFI2hT5sPIMoed1rceUo5/jUcEXY2JyGjexX+soxLlXnvGxr+YCoQyBJ/tvqZsw82UHxh3cGbZJ//LrrgBTswvXod28Cddzyqj0kg+oB5Xx1GJrp3sos9qw92itYppk3QB/c=~1',
-    'bm_sz': 'C46F5D6F7332FE0D9AB4D1F18E359F50~YAAQrOQ1F0lX6MiWAQAANJPd7Bs/9MI8mzEHr7owYBlh57InBCRL05BtOSPb/gE2WVbMHnehbVU9R23tYcwWwWuJcZrAwXF4Z+ZPkfk6yEwBmu1mBf+vv7mgVT3raUs2uUc94OmINARO1B0YNuyWxigTFPeWXjUyM8HIK4hwA+gQW0++TTOLTsIGTevzcX2PC3DDM3MrSzXLu3QJS0mBR8fmq8bMudFOxjHsjrk7aeQS92MtR+IR9xi/kfQ+9v7+yCN+YBTTkOySw3lNe68zgP/Dq4Wc+hri08TN9W8oKOFPXa34jibRX15uO57nv7gEq5rxLgwYAMRXNdrJcztuZHwYF5FGOYAP47dyMSsOycSrLjPFYj39AQ6d0JZqKlVv/9s6ZeJ2pasfGkrIKrEd7Zmva7kFqmk8Nw==~3684146~3425090',
-    '_abck': '813856D2A104668BFBB17BF2C3D60CE4~0~YAAQrOQ1F05X6MiWAQAAtZPd7A2jmVuPR6f9p8Qe07zRf/gJjnv8eKFWGgh8GxecZhf4Bt0wUmpC5lN7t7zy/QuJFGISoEYLHjHpchE6cNFIxICi0HNlVdJIX1mdalHASpV0ybWeaWuj1F8n8/ELhnGLnM/WN9kCckbBjUhmtup4XpC9gf458B5RIPNjq/JBDT91JUqIh3F5VjBsLNFy4vzF6gLTWRBDYHNTFHEh/BB3Pbg3VZu+x8eZgrIgmUHSWHjxk6d6slqN+cdBwxk0vWyuhuxZN8Hj5vjK3vPiVBAvnUY/t7FbHXbGdpNxxvyiCXkeMvfQikZuEMEZGmWoiThipLYe8j5Ttd9I68ZhFuuD/i7brq2ausE/H5xxIoD3IE6RUncSVJwbacGj1P1DW+bqL4uKunRpq6zijkkKAXDdLJFVCWOJqRrgKMGtRU5r7XWz7BKxSMGJFAWz9wOUbhO7UpIYyjUc7iQ26WlClT26BH8y9ov23onoDqVD+Exs/qbIzExRn0B7acJOJwKXpr3w6XbjT6LlfNc2lR+uqvf3l/ydvT79wL5K44Tpn+iw9AJDLlmDaI73EYpJ5gpNCZ2i38GY9IshNTWqcUng/Hk6VVcdoq/wmQ==~-1~-1~-1',
+    'x-coupang-accept-language': 'ko-KR',
+    'PCID': '17593377736643510956028',
+    '__cf_bm': 'xbSK3Nv9u4M_UWthvhkIyRtKWXIbmEVDnfqo6TPqa6g-1759337774-1.0.1.1-uf43v3yFaYYH.rKzANO3ln2NbsSg2r77E78lOYG6zjNN7BTOqSttpieUvy2JAKc71WGtbHbor7EWVyc8zRdiCx2hyROgkC2_1o3DYOnesxs',
+    'cf_clearance': 'n0VHOMkge0kWJ_QL0zVOlH4IQjG.c8xLsIUnTQ6XZp8-1759337774-1.2.1.1-rGz.p5K82hgvLktMviCXGFrZZAN52zxYW3qByuOtZRD5m94J6aSGVxbGIduJGzRq4jnhxnWnrsjgd_biLvzsLuiWFgyfrjuEEnpHQXNKomYo13ag6nslrw9OxBclQqivudtw70oqZ4WwPIaC2cXGRWY59KJI9HZsRY72_oQ9Ro14NfuOwfwKI8fe7TX6Ls6IX0oVUCxNDKdV7beYntKJuV_HdqSRnq4ISmp6Lykvzao',
+    'sid': '5521f4aba29f4bab81897c1104fdc65ab27e90c4',
+    '_abck': '428F4221E304BB557ED076A24958B540~-1~YAAQyjpvPUsoJpqZAQAA5f6zoA6tpHRvU3FUqt+givDkHG5zmrmqQQtSaT6nXj/rlmiwMGT3ILqSsGzb6isJXo5FObAXFPHkghAh3vCenv0X9eiHiUVbQzLVO2dUN3iseLasadLUb5fwB0k8ipURjcKLZh6On5dzKnAn5M0V3ChN/knUvHvSZDN28T2k9kICRZOSXb9oSPTo/P/hYhfi7y8HIqJiK4iriHrdZlC8SGk7HWlFyl/fVtnfhUWNBnMwIQ2dxpxotdsQaVkCN8zW88OJrdr/hgECxcaww3v74M6xmHH2hmPtw2jgocXD+PFVyYaBJFw//LkCFnxKZxicGSQFxxiYhNzDx9V+viY5q2qKueRvAZZq2Vy9jPFyE9amVSY7D9BGkzL7li8zvLwdnBuIaI9z4ftwlgpQm3b6NqCvyvqqv0sZGbJ069ZnU/kxlAVe2wJrVcO7TBJUx2clZPzKzcSOIQ==~-1~-1~-1~-1~-1',
+    'ak_bmsc': '37B2438432BE5CC75B42F1F09E789002~000000000000000000000000000000~YAAQyjpvPUwoJpqZAQAA5f6zoB3hmxJps20PPIZJWCyIVCDk64BTZoMNjTv0fvaXeojrV7xyh77zpqGEvjTHrFCR/uEk4sKauPlr43UsFAcBqPNnvLk1tkl21NVhFu+yAqunCPPVPga9lWwSFMtnf3EDv8A+W8sLPaYeBHF6ONHEBoxRRgYXbcULhlajbFBDSfhqavOrLF+yg3oATHy+4JYpAmQQgVAuYsnQWujdnh2dskIdMg0TwMD4UTfxn32ON7C2oo3obtu54Q9o5whK+hSp1MSsf91eqR3BTiNY/iMGqf+9NbyGqujihhwjf/Alqb0i670MvLnApQAFC580/BWEaq2G4/6noa/t6FALaqGvFbBeyvEHfa77udzWUgn9kKYqUeT1wCu5IJ8Mzw==',
+    'bm_sz': 'A0B8B889A4096CB9B49412D0A160B4E2~YAAQyjpvPU0oJpqZAQAA5f6zoB0CL+vADe5GhlsUwtFoO1BQPkgCxShNpkI816JDaM9lAP8DrRjbPQe9wdhDTdH0Vk3U4d1IptxI0tAwhLFJDtsRxAFMwqWntAp1tqVJ5gdzbMAPkbEtgGF+BHn/1iBhOVc8eu+DKdCdIV/3AbbXumKju6XpPs6i9ub4sCb5zPFeU9jZt/CRvoxZ7tzHcjR4rDcQdrmk6DGWqmT54nOdVKXnizjxoOIeL0yX9aZmJcEDU0YNfuYSoH6U0Es9RkA8I2qDz2aXrhkUC0A57YmqsA4aiDCkcPNA4N3CTjb4SVEcFeOPVCd2h0hSJQoBXH2mXOJfRm30aB3Uue2Z6x6Jnm+si/n9HGXy~3752771~3356981',
+    '_fbp': 'fb.1.1759337775597.162847419422531698',
+    'cto_bundle': '1xw5Al9ZYk5uVzFUQUxjJTJGTGRHRjBWVGZTWEdFYmJOSnl6aFJubzZ6cHdtTjdjOGN1dUMlMkZxa0FFYlhjYldJV2MwcWJGUmtVUXJpRkV6bWZ6bTVyOG94RXh5VG9pQzNseXlCV0Fkdk9ySWU1MXVyU1RxUWc5R05NQ29rcyUyQmlyYnpranlOSjBITGRWOTBUYmw1SHU1cHVTSW1rZkRwMGJhc3BIc2I5MDhiR0JGa1hIczQlM0Q',
+    'bm_sv': '6D8B5E6855B27E0BDD06993884A035D7~YAAQNq0sF2mpW26ZAQAAsYG5oB1rSmm+CVX+rjANjUvjGTLocHD1XTOvuAd2Z6Xv4NMgERolVuMurxjUSD8ya+3CBWzF2vXdjbMt/qPUi4T76KvJt0CJTmWIDV9/dzTujpz4FRpVmDBVYhjGc4T48OBqBa3a6ImbDOE1TrnU7QPPy/88tEgE6zc0KRMp3nVznP17eFOCqVnxacW8ysHjCJzG6P6rahapgrnx0swkHWTYjzHMcLPr6yVQCgIG7yPr2A==~1'
 }
 
 headers = {
     'accept': 'application/json, text/plain, */*',
-    'accept-language': 'ko',
-    'dnt': '1',
-    'priority': 'u=1, i',
-    'referer': 'https://www.coupang.com/vp/products/8544966476?itemId=24741425756&searchId=202b73be42be481083dcaa691fa13195&sourceType=brandstore_sdp_atf-baseline_list&storeId=210629&subSourceType=brandstore_sdp_atf-baseline_list&vendorId=A01352644&vendorItemId=92060971403',
-    'sec-ch-ua': '"Chromium";v="136", "Microsoft Edge";v="136", "Not.A/Brand";v="99"',
-    'sec-ch-ua-mobile': '?0',
-    'sec-ch-ua-platform': '"Windows"',
+    'accept-language': 'ko-KR,ko;q=0.8,en-US;q=0.5,en;q=0.3',
+    'cache-control': 'no-cache',
+    'pragma': 'no-cache',
+    'priority': 'u=0',
+    'referer': 'https://www.coupang.com/vp/products/8286306299?itemId=23894228861&vendorItemId=90916887599&sourceType=CAMPAIGN&campaignId=82&categoryId=0&traceId=mg87674u',
     'sec-fetch-dest': 'empty',
     'sec-fetch-mode': 'cors',
     'sec-fetch-site': 'same-origin',
-    'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36 Edg/136.0.0.0',
-    # 'cookie': 'sid=97040aab3569456bba1330679a85a1661e1e4565; overrideAbTestGroup=%5B%5D; x-coupang-accept-language=ko-KR; x-coupang-target-market=KR; bm_ss=ab8e18ef4e; PCID=17477304370704860947982; web-session-id=57bbbcfc-d057-4ba4-9e17-3eba22cb3e2b; bm_lso=9C7333CF362AF62E70492261B38C4332BBE4092AE8ACE34B0D36E4A46018BD38~YAAQnjggF9AHzseWAQAAORXa7APPflBK/y7o5lzZ8gfDw79GFEyz0Y2yX+991/kQJiHZafIg00cH8GZidSKibOFNzs4SJ1+O9BazzZuTUYXdXh0ifPeiUiwb0a0ZR6G9keO02uHODXJ10w/43JDP2smxZGBYGfHCXQI7Caz4RpUPqSfbmcWajo0St2kUJ60cQ+/fV71sbyeMmzKpyaG45vuuRgH3BZzz35Diw804p04WfbxuuVh5IIDrOwfWHXPTaetHaQ6H4grNvxU391bHZ5icsOz4NIVV0qkrE/hCXG08Y5sNqVbxSdbBhLFDG2OPsOv+JWjofhcpKrk/lu25g3A+aYIRKbG9gIDWCK1By3WQjNJucxp1Pa4gIxlPTJC7NmgwDpi2PdIhna2K5ZFMm55icAKf3bxcQ4jQ6FE1JTsE3/EUP28pq3FthorJz1H3oJPmXqJ1Vq1oCo4ELBFRqg==^1747730437430; MARKETID=17477304370704860947982; baby-isWide=small; ak_bmsc=798E4830F999DFAF433933566D15B094~000000000000000000000000000000~YAAQnjggFzEIzseWAQAAWhra7BujL4UK2iTT7O3s1NoLh2uprhx73jSV/2ujrnbL7r9pdS2CUQL3R6ahE3+KSx9mitMItautyPxqQ8kSMBpujT5p375EZUuT8M8e0ZcBAiwQUPbnrFBbMtODNP39kVZXqEUwoyddLyPeJtKAHxCi1a7p3uzv8C2Fxspku+s0Duf+bP0NfLFNAiWye9KHm8PJo7H67ZlmF/vuL3a4TliXapkzviguUI61hG/gD07fcsnL66vY/AsQuxb+hIld+86EjM4bdCGiAS2HClUHoru6/ZATGQ42z4u1vnk5ahfBOAdQMf2rB+v2lNCFDbpREPgf/6zWQxXyvKXxka5YMbSKbWQzRO6e2hDYkxSzu1woDGOEpuGeyh+QYoao; bm_mi=B4CA97C6F2E81F2BB3F8351C714A7882~YAAQrOQ1F0VX6MiWAQAANJPd7BsooWBHJ376EXT9IVbKc0I8hsFnF/d+QlKrU5zz7Rk+LSmGgNlg8tNsZI9QaUKqp4TUEpMWWP+HOH8MJ+FNV0n6gU+hhE+im1fkas82Dy2EurvkzTjy2CdkLn7AmVsPYCyVXx8qGcIquxQnUdOj8IZiiB3JTDd/sQb8ZHYRqCwHogNOHs16N6gilXX+chp2iIvjr3e9lzG42AfXI4R3OF1MRzu0zvtYtjhcl47KahCQovYlJj66F6QSSQ85QfPLTj+JbGNl8Cg8lU47LydBkDLQZu4KMAiMLufMoaET6EqE6DlyKUTOyVQ9PFbcwOmCfUc=~1; bm_s=YAAQrOQ1F0ZX6MiWAQAANJPd7APm7YT0e5a+wLvgBwph6Ok5J4cOhwmF7l7ebkZFWbejztDsrkWNb2K9Utcu21BKVgDpU9F1DFrmo/xXlj+ejZ0K6MpdpdjXurPnF5W41gm6ykVH0rAFcNvJhSOyTft32CMJ6rKzY5nyi6JB7nxoLhQFaz8qfd0qfgheK2GdUAomO8if71fGIhLlZ32fI18gHJwdrxPfjFW5Xird7hKx2NofNfHBzig61eQI751c5mnmON06dZ0+kwkR4AUAWFd/7V051eN2J33ngCdE/NkUxb24AORROCbai/tQ4wGMyvXlOr7fKQEbHyvudlQPzjV6X4KsZipOA8veQ2iE44YUSWnwRUsXXA0IZtAQoiXAmnSETejTB7g+19pUtiotLzov9jTgI8LmuxJAV+yuW1cAplL9BQ3EX5w+Vxw7vlY9s80ajHCrGUuFYcK6P3ww1SZFX88+rbEMLeSPyBDCTr91Kjb+QER3LkPY5wQl8TeXRlqZYlsjZJn1zTODX6pr71hxvQAaWD/35ZUujei9evAtD/t549O1pnEp+ET0lGpO2vsCcFbzvD98kK0M3MiwJQ==; bm_so=FBE92E38C837F67F05FB2E31180753A6BCCE27BACFB0FEEC69B04B9EEBD112D9~YAAQrOQ1F0dX6MiWAQAANJPd7AOgE/G5XGcoBSwvrwofi9x0MDV4oYYeoZJgptCvPinqgl+VJPOqI5vadOoMREAd95Eokyl7uk6Dr3+PJCjVjFZZxK3olKnqqoQ+C6Xm00xnO6j0MNFRJe+1lP4aGNkUlrysByfNpyASl0j9L50bqK9us4KzBS5tIJM4PMEDGMqmPdgnnq7XFlCutPU1FhHI4ql9e9rfuJ+bp0bbDX0oL2j0vE41Y9JFBUPfJFuT2fui4ms4Re/qYeOC21w5fDFVSdn0PmUfwIHmHnkfWtAcGLv2IOrYsiLKlut1f13vTz+1Qpsrm9enxyjA7f6G5M9uWWxIpVQpBYI6+mfk6KVgxqS2sIkzCgQnm9fhfFQH2bzHHZR7/Jb9M3/jzAZQ467NaQPNefgJE4ZK9H2S88tdAzMNLOlTXrYZCFKCo0iWhHSYUco1P2KGJTv8EaSUJg==; bm_sv=0CD2A8886E19BCFA125073CE5686605C~YAAQrOQ1F0hX6MiWAQAANJPd7BuehIq2yhTlDbyM7SQvV+JGQzfWHl+o5G3dQCOvcGN4wgjGlZJmOLLs3w+2HGHqA9HpWdopFI9eQzkl86GQhu/ZqOo2jJ6y1Ju3CkjlFI2hT5sPIMoed1rceUo5/jUcEXY2JyGjexX+soxLlXnvGxr+YCoQyBJ/tvqZsw82UHxh3cGbZJ//LrrgBTswvXod28Cddzyqj0kg+oB5Xx1GJrp3sos9qw92itYppk3QB/c=~1; bm_sz=C46F5D6F7332FE0D9AB4D1F18E359F50~YAAQrOQ1F0lX6MiWAQAANJPd7Bs/9MI8mzEHr7owYBlh57InBCRL05BtOSPb/gE2WVbMHnehbVU9R23tYcwWwWuJcZrAwXF4Z+ZPkfk6yEwBmu1mBf+vv7mgVT3raUs2uUc94OmINARO1B0YNuyWxigTFPeWXjUyM8HIK4hwA+gQW0++TTOLTsIGTevzcX2PC3DDM3MrSzXLu3QJS0mBR8fmq8bMudFOxjHsjrk7aeQS92MtR+IR9xi/kfQ+9v7+yCN+YBTTkOySw3lNe68zgP/Dq4Wc+hri08TN9W8oKOFPXa34jibRX15uO57nv7gEq5rxLgwYAMRXNdrJcztuZHwYF5FGOYAP47dyMSsOycSrLjPFYj39AQ6d0JZqKlVv/9s6ZeJ2pasfGkrIKrEd7Zmva7kFqmk8Nw==~3684146~3425090; _abck=813856D2A104668BFBB17BF2C3D60CE4~0~YAAQrOQ1F05X6MiWAQAAtZPd7A2jmVuPR6f9p8Qe07zRf/gJjnv8eKFWGgh8GxecZhf4Bt0wUmpC5lN7t7zy/QuJFGISoEYLHjHpchE6cNFIxICi0HNlVdJIX1mdalHASpV0ybWeaWuj1F8n8/ELhnGLnM/WN9kCckbBjUhmtup4XpC9gf458B5RIPNjq/JBDT91JUqIh3F5VjBsLNFy4vzF6gLTWRBDYHNTFHEh/BB3Pbg3VZu+x8eZgrIgmUHSWHjxk6d6slqN+cdBwxk0vWyuhuxZN8Hj5vjK3vPiVBAvnUY/t7FbHXbGdpNxxvyiCXkeMvfQikZuEMEZGmWoiThipLYe8j5Ttd9I68ZhFuuD/i7brq2ausE/H5xxIoD3IE6RUncSVJwbacGj1P1DW+bqL4uKunRpq6zijkkKAXDdLJFVCWOJqRrgKMGtRU5r7XWz7BKxSMGJFAWz9wOUbhO7UpIYyjUc7iQ26WlClT26BH8y9ov23onoDqVD+Exs/qbIzExRn0B7acJOJwKXpr3w6XbjT6LlfNc2lR+uqvf3l/ydvT79wL5K44Tpn+iw9AJDLlmDaI73EYpJ5gpNCZ2i38GY9IshNTWqcUng/Hk6VVcdoq/wmQ==~-1~-1~-1',
+    'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:143.0) Gecko/20100101 Firefox/143.0',
+    'te': 'trailers',
+    'accept-encoding': 'gzip, deflate, br, zstd',
+    'connection': 'keep-alive'
 }
 
 params = {
-    'productId': '7279902664', #상품의 아이디값
-    'page': '1', # 초기 페이지 번호
-    'size': '5',
-    'sortBy': 'ORDER_SCORE_ASC',
+    'productId': '8286306299',
+    'page': '1',
+    'size': '10',
+    'sortBy': 'DATE_DESC',
     'ratingSummary': 'true',
     'ratings': '',
     'market': '',
 }
+
 
 base_url = 'https://www.coupang.com/next-api/review'
 all_reviews = []
@@ -86,6 +85,39 @@ for page_num in range(2, total_pages + 1):
     delay_time = random.uniform(0.9, 1.3)
     print(f"다음 페이지 요청까지 {delay_time:.2f}초 대기합니다.")
     time.sleep(delay_time) # 랜덤 시간 지연
+
+# 영상을 저장할 디렉토리 생성
+video_output_dir = 'videos'
+os.makedirs(video_output_dir, exist_ok=True)
+
+# 각 리뷰에서 영상 링크를 찾아 다운로드
+print("\n영상 다운로드를 시작합니다...")
+for review in all_reviews:
+    if 'videoAttachments' in review and review['videoAttachments']:
+        for idx, video_attachment in enumerate(review['videoAttachments']):
+            video_url = video_attachment.get('videoUrl')
+            if video_url:
+                review_id = review.get('reviewId', 'unknown_review')
+                # 파일 이름 형식: 리뷰ID_video_인덱스.mp4
+                output_filename = os.path.join(video_output_dir, f"{review_id}_video_{idx}.mp4")
+                
+                print(f"리뷰 ID {review_id}의 영상 {idx} 다운로드 중: {video_url} -> {output_filename}")
+                
+                try:
+                    # ffmpeg을 사용하여 m3u8 스트림을 mp4로 변환 및 저장
+                    subprocess.run(
+                        ['ffmpeg', '-i', video_url, '-c', 'copy', '-bsf:a', 'aac_adtstoasc', output_filename],
+                        check=True,
+                        capture_output=True,
+                        text=True
+                    )
+                    print(f"성공적으로 다운로드 및 저장되었습니다: {output_filename}")
+                except subprocess.CalledProcessError as e:
+                    print(f"영상 다운로드 실패 (리뷰 ID: {review_id}, 영상 인덱스: {idx}): {e.stderr}")
+                except FileNotFoundError:
+                    print("오류: ffmpeg이 설치되어 있지 않거나 PATH에 추가되어 있지 않습니다. ffmpeg을 설치해주세요.")
+                except Exception as e:
+                    print(f"예상치 못한 오류 발생 (리뷰 ID: {review_id}, 영상 인덱스: {idx}): {e}")
 
 # 전체 리뷰 데이터를 JSON 파일로 저장
 json_filename = 'raw_reviews.json'
